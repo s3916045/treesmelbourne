@@ -357,27 +357,27 @@ mapboxgl.accessToken = "pk.eyJ1IjoiaGVuYmVhemxld29vZCIsImEiOiJjbTgzdmw5cTUxdjR1M
 var layers = ["Over-mature", "Mature", "Semi-Mature", "Juvenile", ""];
 var colors = ["#926438", "#a58962", "#a3ab82", "#3f4732", "#c0c3a8"];
 
-// UPDATED: Expanded bounds to cover greater Melbourne area with trees
-// These bounds encompass the City of Melbourne and surrounding suburbs
-const bounds = [
-  [144.9000, -37.8500], // SW (south-west) - Expanded to include more area
-  [145.0000, -37.7800], // NE (north-east) - Expanded to include more area
-];
+// Melbourne CBD center coordinates
+const melbourneCBD = [144.9631, -37.8136];
 
-// UPDATED: Initial center point - Melbourne CBD (more zoomed out)
-const melbourneCenter = [144.9631, -37.8136];
+// UPDATED: Tighter bounds that focus on the CBD and surrounding areas with trees
+// These bounds are optimized to keep users within the tree-dense areas of Melbourne
+const bounds = [
+  [144.9400, -37.8300], // SW - South West boundary (South Melbourne/Port Melbourne)
+  [144.9900, -37.7900]  // NE - North East boundary (Carlton/Fitzroy)
+];
 
 var map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/henbeazlewood/cmb8yj8q600oa01sw1h3j1txb",
-  center: melbourneCenter, // Center on Melbourne CBD
-  zoom: 13.5, // UPDATED: Zoomed out to show broader CBD area (was 15, now 13.5)
-  minZoom: 12, // UPDATED: Allow zooming out a bit more (was 15, now 12)
+  center: melbourneCBD, // Center on Melbourne CBD
+  zoom: 15, // Keeping zoom at 15 for data visibility
+  minZoom: 15,
   maxZoom: 22,
-  maxBounds: bounds, // This restricts panning to these bounds
+  maxBounds: bounds // This restricts panning to these bounds
 });
 
-// Optional: Add a subtle boundary line to show the editable area
+// Optional: Add a subtle boundary line to show the editable area (commented out by default)
 map.on('load', function() {
   map.addSource('bounds-source', {
     type: 'geojson',
@@ -397,27 +397,29 @@ map.on('load', function() {
     }
   });
   
-  // Add a transparent fill with border to show the editable area (optional - comment out if you don't want this visible)
-  // map.addLayer({
-  //   id: 'bounds-fill',
-  //   type: 'fill',
-  //   source: 'bounds-source',
-  //   paint: {
-  //     'fill-color': '#088',
-  //     'fill-opacity': 0.05
-  //   }
-  // });
+  // Uncomment these layers if you want to see the boundary visually
+  /*
+  map.addLayer({
+    id: 'bounds-fill',
+    type: 'fill',
+    source: 'bounds-source',
+    paint: {
+      'fill-color': '#4CAF50',
+      'fill-opacity': 0.05
+    }
+  });
   
-  // map.addLayer({
-  //   id: 'bounds-outline',
-  //   type: 'line',
-  //   source: 'bounds-source',
-  //   paint: {
-  //     'line-color': '#4CAF50',
-  //     'line-width': 2,
-  //     'line-dasharray': [2, 2]
-  //   }
-  // });
+  map.addLayer({
+    id: 'bounds-outline',
+    type: 'line',
+    source: 'bounds-source',
+    paint: {
+      'line-color': '#4CAF50',
+      'line-width': 2,
+      'line-dasharray': [2, 2]
+    }
+  });
+  */
 });
 
 // Define function for interactive legend
@@ -562,12 +564,8 @@ map.on("load", function () {
     mapboxgl: mapboxgl,
     marker: true,
     placeholder: "Find your tree!",
-    proximity: {
-      longitude: 144.9631, // Melbourne center
-      latitude: -37.8136,
-    },
-    // UPDATED: Restrict geocoder results to within bounds
-    bbox: bounds,
+    proximity: melbourneCBD, // Prioritize CBD results
+    bbox: bounds, // Restrict geocoder results to within bounds
   });
 
   document.getElementById("geocoder-container").appendChild(geocoder.onAdd(map));
