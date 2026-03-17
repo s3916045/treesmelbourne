@@ -207,7 +207,6 @@ h2 {
   margin-bottom: 8px;
 }
 
-/* DBH Scale Section */
 .dbh-scale {
   margin-top: 20px;
   padding-top: 15px;
@@ -249,7 +248,6 @@ h2 {
   display: block;
 }
 
-/* Scale examples with different sizes */
 .scale-circle .circle.size-small {
   width: 8px;
   height: 8px;
@@ -270,7 +268,6 @@ h2 {
   height: 26px;
 }
 
-/* Note text */
 .scale-note {
   font-size: 0.85em;
   color: #a0a0a0;
@@ -290,16 +287,10 @@ h2 {
   }
 }
   </style>
-
-  
 </head>
 <body>
-  <!-- Mapbox CSS -->
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet" />
   <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet" />
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles.css">
 
   <div class="container">
     <header>
@@ -342,351 +333,268 @@ h2 {
     </div>
   </div>
 
-  <!-- Mapbox JS -->
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
-  
-  <!-- Custom JavaScript -->
-  <script src="script.js"></script>
 
   <script>
-    // Initialize map with access token
-mapboxgl.accessToken = "pk.eyJ1IjoiaGVuYmVhemxld29vZCIsImEiOiJjbTgzdmw5cTUxdjR1MnFwdG5tNTVoY2JlIn0.hpvWE0lgc6UJWtVtjhKmPQ";
+    mapboxgl.accessToken = "pk.eyJ1IjoiaGVuYmVhemxld29vZCIsImEiOiJjbTgzdmw5cTUxdjR1MnFwdG5tNTVoY2JlIn0.hpvWE0lgc6UJWtVtjhKmPQ";
 
-// Define key features
-var layers = ["Over-mature", "Mature", "Semi-Mature", "Juvenile", ""];
-var colors = ["#926438", "#a58962", "#a3ab82", "#3f4732", "#c0c3a8"];
+    var layers = ["Over-mature", "Mature", "Semi-Mature", "Juvenile", ""];
+    var colors = ["#926438", "#a58962", "#a3ab82", "#3f4732", "#c0c3a8"];
+    const melbourneCBD = [144.9631, -37.8136];
+    const bounds = [
+      [144.838858, -37.870314],
+      [145.094719, -37.766712]
+    ];
 
-// Melbourne CBD center coordinates
-const melbourneCBD = [144.9631, -37.8136];
+    var map = new mapboxgl.Map({
+      container: "map",
+      style: "mapbox://styles/henbeazlewood/cmb8yj8q600oa01sw1h3j1txb",
+      center: melbourneCBD,
+      zoom: 15,
+      minZoom: 15,
+      maxZoom: 22,
+      maxBounds: bounds
+    });
 
-// UPDATED: Tighter bounds that focus on the CBD and surrounding areas with trees
-// These bounds are optimized to keep users within the tree-dense areas of Melbourne
-const bounds = [
-  [144.9400, -37.8300], // SW - South West boundary (South Melbourne/Port Melbourne)
-  [144.9900, -37.7900]  // NE - North East boundary (Carlton/Fitzroy)
-];
+    map.addControl(new mapboxgl.NavigationControl());
 
-var map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/henbeazlewood/cmb8yj8q600oa01sw1h3j1txb",
-  center: melbourneCBD, // Center on Melbourne CBD
-  zoom: 15, // Keeping zoom at 15 for data visibility
-  minZoom: 15,
-  maxZoom: 22,
-  maxBounds: bounds // This restricts panning to these bounds
-});
-
-// Optional: Add a subtle boundary line to show the editable area (commented out by default)
-map.on('load', function() {
-  map.addSource('bounds-source', {
-    type: 'geojson',
-    data: {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [bounds[0][0], bounds[0][1]],
-          [bounds[1][0], bounds[0][1]],
-          [bounds[1][0], bounds[1][1]],
-          [bounds[0][0], bounds[1][1]],
-          [bounds[0][0], bounds[0][1]]
-        ]]
-      }
-    }
-  });
-  
-  // Uncomment these layers if you want to see the boundary visually
-  /*
-  map.addLayer({
-    id: 'bounds-fill',
-    type: 'fill',
-    source: 'bounds-source',
-    paint: {
-      'fill-color': '#4CAF50',
-      'fill-opacity': 0.05
-    }
-  });
-  
-  map.addLayer({
-    id: 'bounds-outline',
-    type: 'line',
-    source: 'bounds-source',
-    paint: {
-      'line-color': '#4CAF50',
-      'line-width': 2,
-      'line-dasharray': [2, 2]
-    }
-  });
-  */
-});
-
-// Define function for interactive legend
-function createInteractiveLegend() {
-  const legendContainer = document.getElementById("legend-items");
-  legendContainer.innerHTML = "";
-
-  // Parkland Section (at top)
-  const parklandTitle = document.createElement("h4");
-  parklandTitle.textContent = "Parkland Areas";
-  legendContainer.appendChild(parklandTitle);
-
-  const parklandItem = document.createElement("div");
-  parklandItem.className = "legend-filter-item";
-  parklandItem.innerHTML = `
-    <label>
-      <input type="checkbox" class="parkland-toggle">
-      <span class="legend-key" style="background-color:#4CAF50"></span>
-      Parkland
-    </label>
-  `;
-  legendContainer.appendChild(parklandItem);
-
-  // Separator
-  const separator = document.createElement("hr");
-  separator.style.border = "0.5px solid #333";
-  separator.style.margin = "15px 0";
-  legendContainer.appendChild(separator);
-
-  // Tree Age Categories Section
-  const treeTitle = document.createElement("h4");
-  treeTitle.textContent = "Tree Age Categories";
-  legendContainer.appendChild(treeTitle);
-
-  // Add tree age checkboxes
-  layers.forEach((layer, index) => {
-    const item = document.createElement("div");
-    item.className = "legend-filter-item";
-    const displayLabel = layer === "" ? "Unidentified" : layer;
-
-    item.innerHTML = `
-      <label>
-        <input type="checkbox" class="tree-filter" 
-               value="${layer}" 
-               checked
-               data-original-value="${layer === null ? "null" : layer}">
-        <span class="legend-key" style="background-color:${colors[index]}"></span>
-        ${displayLabel}
-      </label>
-    `;
-    legendContainer.appendChild(item);
-  });
-
-  // Add DBH Scale Section
-  const dbhScaleSection = document.createElement("div");
-  dbhScaleSection.className = "dbh-scale";
-  dbhScaleSection.innerHTML = `
-    <h4>Tree Size (DBH)</h4>
-    <div class="scale-item">
-      <div class="scale-circle">
-        <div class="circle size-small"></div>
-      </div>
-      <div class="scale-label">
-        Small (< 15 cm)
-      </div>
-    </div>
-    <div class="scale-item">
-      <div class="scale-circle">
-        <div class="circle size-medium"></div>
-      </div>
-      <div class="scale-label">
-        Medium (15-30 cm)
-      </div>
-    </div>
-    <div class="scale-item">
-      <div class="scale-circle">
-        <div class="circle size-large"></div>
-      </div>
-      <div class="scale-label">
-        Large (30-50 cm)
-      </div>
-    </div>
-    <div class="scale-item">
-      <div class="scale-circle">
-        <div class="circle size-xlarge"></div>
-      </div>
-      <div class="scale-label">
-        Very Large (> 50 cm)
-      </div>
-    </div>
-    <div class="scale-note">
-      ⌀ Circle size represents Diameter at Breast Height (DBH) - larger circles indicate thicker trees
-    </div>
-  `;
-  legendContainer.appendChild(dbhScaleSection);
-
-  // Tree filter event listeners
-  document.querySelectorAll(".tree-filter").forEach((checkbox) => {
-    checkbox.addEventListener("change", function () {
-      const selectedLayers = [];
-      document.querySelectorAll(".tree-filter:checked").forEach((cb) => {
-        const originalValue = cb.getAttribute("data-original-value");
-        selectedLayers.push(originalValue === "null" ? null : originalValue);
+    map.on('load', function() {
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        marker: true,
+        placeholder: "Find your tree!",
+        proximity: melbourneCBD,
+        bbox: bounds,
+        countries: 'au',
+        fuzzyMatch: true
       });
 
-      if (selectedLayers.length === 0) {
-        map.setFilter("Trees", ["==", "id", -1]);
-      } else {
-        const conditions = selectedLayers.map((layer) => {
-          if (layer === null) return ["==", ["get", "age_description"], null];
-          else if (layer === "") return ["==", ["get", "age_description"], ""];
-          else return ["==", ["get", "age_description"], layer];
+      document.getElementById("geocoder-container").appendChild(geocoder.onAdd(map));
+
+      map.addSource("trees-source", {
+        type: "vector",
+        url: "mapbox://henbeazlewood.b447q7f2"
+      });
+
+      map.addLayer({
+        id: "Trees",
+        type: "circle",
+        source: "trees-source",
+        "source-layer": "TresswGuard-07kbky",
+        minzoom: 11,
+        paint: {
+          "circle-color": [
+            "match",
+            ["get", "age_description"],
+            "Over-mature", colors[0],
+            "Mature", colors[1],
+            "Semi-Mature", colors[2],
+            "Juvenile", colors[3],
+            colors[4]
+          ],
+          "circle-opacity": 1,
+          "circle-stroke-width": 0.5,
+          "circle-stroke-color": "#000000",
+          "circle-radius": {
+            property: "diameter_breast_height",
+            type: "interval",
+            stops: [
+              [0, 2],
+              [5, 3],
+              [15, 4],
+              [30, 5],
+              [50, 6],
+              [75, 7]
+            ]
+          }
+        }
+      });
+
+      map.addLayer({
+        id: "MB-parkland",
+        type: "fill",
+        source: { type: "vector", url: "mapbox://henbeazlewood.405j9ylx" },
+        "source-layer": "Prac06_2025_choropleth_MB-4dy59h",
+        minzoom: 11,
+        filter: ["==", ["get", "MB_CAT21"], "Parkland"],
+        paint: {
+          "fill-color": "#4CAF50",
+          "fill-opacity": 0.5,
+          "fill-outline-color": "#333"
+        }
+      });
+      map.setLayoutProperty("MB-parkland", "visibility", "none");
+
+      function createInteractiveLegend() {
+        const legendContainer = document.getElementById("legend-items");
+        legendContainer.innerHTML = "";
+
+        const parklandTitle = document.createElement("h4");
+        parklandTitle.textContent = "Parkland Areas";
+        legendContainer.appendChild(parklandTitle);
+
+        const parklandItem = document.createElement("div");
+        parklandItem.className = "legend-filter-item";
+        parklandItem.innerHTML = `
+          <label>
+            <input type="checkbox" class="parkland-toggle">
+            <span class="legend-key" style="background-color:#4CAF50"></span>
+            Parkland
+          </label>
+        `;
+        legendContainer.appendChild(parklandItem);
+
+        const separator = document.createElement("hr");
+        separator.style.border = "0.5px solid #333";
+        separator.style.margin = "15px 0";
+        legendContainer.appendChild(separator);
+
+        const treeTitle = document.createElement("h4");
+        treeTitle.textContent = "Tree Age Categories";
+        legendContainer.appendChild(treeTitle);
+
+        layers.forEach((layer, index) => {
+          const item = document.createElement("div");
+          item.className = "legend-filter-item";
+          const displayLabel = layer === "" ? "Unidentified" : layer;
+
+          item.innerHTML = `
+            <label>
+              <input type="checkbox" class="tree-filter" 
+                     value="${layer}" 
+                     checked
+                     data-original-value="${layer === null ? "null" : layer}">
+              <span class="legend-key" style="background-color:${colors[index]}"></span>
+              ${displayLabel}
+            </label>
+          `;
+          legendContainer.appendChild(item);
         });
-        const filter =
-          conditions.length > 1 ? ["any", ...conditions] : conditions[0];
-        map.setFilter("Trees", filter);
-      }
-    });
-  });
 
-  // Parkland Toggle event listener
-  document
-    .querySelector(".parkland-toggle")
-    .addEventListener("change", function (e) {
-      const isVisible = e.target.checked;
-      map.setLayoutProperty(
-        "MB-parkland",
-        "visibility",
-        isVisible ? "visible" : "none"
-      );
-    });
-}
-
-// Wait for map to load before adding layers
-map.on("load", function () {
-  // Add navigation control
-  map.addControl(new mapboxgl.NavigationControl());
-
-  // Add search bar (geocoder) control
-  const geocoder = new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    mapboxgl: mapboxgl,
-    marker: true,
-    placeholder: "Find your tree!",
-    proximity: melbourneCBD, // Prioritize CBD results
-    bbox: bounds, // Restrict geocoder results to within bounds
-  });
-
-  document.getElementById("geocoder-container").appendChild(geocoder.onAdd(map));
-
-  // Add vector source
-  map.addSource("trees-source", {
-    type: "vector",
-    url: "mapbox://henbeazlewood.b447q7f2",
-  });
-
-  // Add the tree layer
-  map.addLayer({
-    id: "Trees",
-    type: "circle",
-    source: "trees-source",
-    "source-layer": "TresswGuard-07kbky",
-    minzoom: 11,
-    paint: {
-      "circle-color": [
-        "match",
-        ["get", "age_description"],
-        "Over-mature",
-        colors[0],
-        "Mature",
-        colors[1],
-        "Semi-Mature",
-        colors[2],
-        "Juvenile",
-        colors[3],
-        colors[4],
-      ],
-      "circle-opacity": 1,
-      "circle-stroke-width": 0.5,
-      "circle-stroke-color": "#000000",
-      "circle-radius": {
-        property: "diameter_breast_height",
-        type: "interval",
-        stops: [
-          [0, 2],
-          [5, 3],
-          [15, 4],
-          [30, 5],
-          [50, 6],
-          [75, 7],
-        ],
-      },
-    },
-  });
-
-  // Add Meshblock Layer
-  map.addLayer({
-    id: "MB-parkland",
-    type: "fill",
-    source: { type: "vector", url: "mapbox://henbeazlewood.405j9ylx" },
-    "source-layer": "Prac06_2025_choropleth_MB-4dy59h",
-    minzoom: 11,
-    filter: ["==", ["get", "MB_CAT21"], "Parkland"],
-    paint: {
-      "fill-color": "#4CAF50",
-      "fill-opacity": 0.5,
-      "fill-outline-color": "#333",
-    },
-  });
-  map.setLayoutProperty("MB-parkland", "visibility", "none");
-
-  // Create the interactive legend
-  createInteractiveLegend();
-
-  // Add click interaction for trees
-  map.on("click", "Trees", (e) => {
-    const properties = e.features[0].properties;
-
-    new mapboxgl.Popup()
-      .setLngLat(e.lngLat)
-      .setHTML(`
-        <div class="tree-popup">
-          <h3>Tree Information</h3>
-          <div class="popup-grid">
-            <div class="popup-row">
-              <span class="popup-label">Common Name:</span>
-              <span class="popup-value">${properties.common_name || "Unknown"}</span>
+        const dbhScaleSection = document.createElement("div");
+        dbhScaleSection.className = "dbh-scale";
+        dbhScaleSection.innerHTML = `
+          <h4>Tree Size (DBH)</h4>
+          <div class="scale-item">
+            <div class="scale-circle">
+              <div class="circle size-small"></div>
             </div>
-            <div class="popup-row">
-              <span class="popup-label">Scientific Name:</span>
-              <span class="popup-value">${properties.scientific_name || "Unknown"}</span>
-            </div>
-            <div class="popup-row">
-              <span class="popup-label">Age Category:</span>
-              <span class="popup-value">${properties.age_description || "Unknown"}</span>
-            </div>
-            <div class="popup-row">
-              <span class="popup-label">DBH:</span>
-              <span class="popup-value">${properties.diameter_breast_height ? properties.diameter_breast_height + " cm" : "Unknown"}</span>
-            </div>
-            <div class="popup-row">
-              <span class="popup-label">Useful Life Expectancy:</span>
-              <span class="popup-value">${properties.useful_life_expectency_value ? properties.useful_life_expectency_value + " years" : "Unknown"}</span>
-            </div>
-            <div class="popup-row">
-              <span class="popup-label">Date Planted:</span>
-              <span class="popup-value">${properties.date_planted || properties.year_planted || "Unknown"}</span>
-            </div>
-            <div class="popup-row">
-              <span class="popup-label">Tree Guard?:</span>
-              <span class="popup-value">${properties.Join_Count === 1 ? "Yes" : "No"}</span>
+            <div class="scale-label">
+              Small (< 15 cm)
             </div>
           </div>
-        </div>
-      `)
-      .addTo(map);
-  });
+          <div class="scale-item">
+            <div class="scale-circle">
+              <div class="circle size-medium"></div>
+            </div>
+            <div class="scale-label">
+              Medium (15-30 cm)
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-circle">
+              <div class="circle size-large"></div>
+            </div>
+            <div class="scale-label">
+              Large (30-50 cm)
+            </div>
+          </div>
+          <div class="scale-item">
+            <div class="scale-circle">
+              <div class="circle size-xlarge"></div>
+            </div>
+            <div class="scale-label">
+              Very Large (> 50 cm)
+            </div>
+          </div>
+          <div class="scale-note">
+            ⌀ Circle size represents Diameter at Breast Height (DBH) - larger circles indicate thicker trees
+          </div>
+        `;
+        legendContainer.appendChild(dbhScaleSection);
 
-  // Change cursor on hover
-  map.on("mouseenter", "Trees", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
+        document.querySelectorAll(".tree-filter").forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const selectedLayers = [];
+            document.querySelectorAll(".tree-filter:checked").forEach((cb) => {
+              const originalValue = cb.getAttribute("data-original-value");
+              selectedLayers.push(originalValue === "null" ? null : originalValue);
+            });
 
-  map.on("mouseleave", "Trees", () => {
-    map.getCanvas().style.cursor = "";
-  });
-});
+            if (selectedLayers.length === 0) {
+              map.setFilter("Trees", ["==", "id", -1]);
+            } else {
+              const conditions = selectedLayers.map((layer) => {
+                if (layer === null) return ["==", ["get", "age_description"], null];
+                else if (layer === "") return ["==", ["get", "age_description"], ""];
+                else return ["==", ["get", "age_description"], layer];
+              });
+              const filter = conditions.length > 1 ? ["any", ...conditions] : conditions[0];
+              map.setFilter("Trees", filter);
+            }
+          });
+        });
+
+        document.querySelector(".parkland-toggle").addEventListener("change", function (e) {
+          const isVisible = e.target.checked;
+          map.setLayoutProperty("MB-parkland", "visibility", isVisible ? "visible" : "none");
+        });
+      }
+
+      createInteractiveLegend();
+
+      map.on("click", "Trees", (e) => {
+        const properties = e.features[0].properties;
+        new mapboxgl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML(`
+            <div class="tree-popup">
+              <h3>Tree Information</h3>
+              <div class="popup-grid">
+                <div class="popup-row">
+                  <span class="popup-label">Common Name:</span>
+                  <span class="popup-value">${properties.common_name || "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">Scientific Name:</span>
+                  <span class="popup-value">${properties.scientific_name || "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">Age Category:</span>
+                  <span class="popup-value">${properties.age_description || "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">DBH:</span>
+                  <span class="popup-value">${properties.diameter_breast_height ? properties.diameter_breast_height + " cm" : "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">Useful Life Expectancy:</span>
+                  <span class="popup-value">${properties.useful_life_expectency_value ? properties.useful_life_expectency_value + " years" : "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">Date Planted:</span>
+                  <span class="popup-value">${properties.date_planted || properties.year_planted || "Unknown"}</span>
+                </div>
+                <div class="popup-row">
+                  <span class="popup-label">Tree Guard?:</span>
+                  <span class="popup-value">${properties.Join_Count === 1 ? "Yes" : "No"}</span>
+                </div>
+              </div>
+            </div>
+          `)
+          .addTo(map);
+      });
+
+      map.on("mouseenter", "Trees", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      map.on("mouseleave", "Trees", () => {
+        map.getCanvas().style.cursor = "";
+      });
+    });
   </script>
 </body>
 </html>
