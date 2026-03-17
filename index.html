@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trees of the Concrete Jungle</title>
+
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  color: #e0e0e0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+header {
+  margin-bottom: 20px;
+  padding: 0;
+  width: 100%;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 5px;
+  color: #ffffff;
+}
+
+h2 {
+  font-size: 1.3em;
+  color: #c0c0c0;
+  margin-top: 0;
+}
+
+.map-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  width: 100%;
+  height: 70vh;
+  border-radius: 1px;
+}
+
+.info-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.description,
+.how-to-use,
+.legend {
+  flex: 1;
+  padding: 15px;
+  background: #000000;
+  border-radius: 4px;
+  color: #e0e0e0;
+}
+
+.legend {
+  width: 250px;
+}
+
+.legend h3,
+.legend h4 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.legend h3 {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.legend h4 {
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+
+.legend-item,
+.legend-filter-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #e0e0e0;
+}
+
+.legend-key {
+  width: 15px;
+  height: 15px;
+  border-radius: 20%;
+  margin-right: 10px;
+}
+
+.legend-filter-item label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+
+.mapboxgl-ctrl {
+  background-color: rgba(30, 30, 30, 0.9) !important;
+}
+
+.mapboxgl-ctrl button {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.mapboxgl-ctrl-icon {
+  filter: invert(90%) !important;
+}
+
+#geocoder-container {
+  position: absolute;
+  top: 60px;
+  right: 30px;
+  z-index: 1;
+  width: 300px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  width: 100%;
+  max-width: none;
+  box-shadow: none;
+  border: 0.5px solid #ccc;
+}
+
+.mapboxgl-ctrl-geocoder input[type="text"] {
+  color: #ffffff;
+}
+
+.mapboxgl-popup {
+  max-width: 300px;
+  font-family: Arial, sans-serif;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.mapboxgl-popup-content {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  padding: 15px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mapboxgl-popup h3 {
+  color: #ffffff !important;
+  margin: 0 0 10px 0 !important;
+  font-size: 1.2em !important;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+}
+
+.popup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-label {
+  font-weight: bold;
+  color: #a0a0a0 !important;
+  margin-right: 10px;
+}
+
+.popup-value {
+  color: #ffffff !important;
+  text-align: right;
+}
+
+.mapboxgl-popup-close-button {
+  color: #a0a0a0 !important;
+  font-size: 18px !important;
+  padding: 5px 8px !important;
+}
+
+.mapboxgl-popup-close-button:hover {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+.how-to-use ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.how-to-use li {
+  margin-bottom: 8px;
+}
+
+/* DBH Scale Section */
+.dbh-scale {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #333;
+}
+
+.dbh-scale h4 {
+  margin-bottom: 15px;
+}
+
+.scale-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.scale-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  width: 30px;
+}
+
+.scale-circle .circle {
+  background-color: #a58962;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+}
+
+.scale-label {
+  font-size: 0.9em;
+  color: #e0e0e0;
+}
+
+.scale-label small {
+  color: #a0a0a0;
+  font-size: 0.85em;
+  display: block;
+}
+
+/* Scale examples with different sizes */
+.scale-circle .circle.size-small {
+  width: 8px;
+  height: 8px;
+}
+
+.scale-circle .circle.size-medium {
+  width: 14px;
+  height: 14px;
+}
+
+.scale-circle .circle.size-large {
+  width: 20px;
+  height: 20px;
+}
+
+.scale-circle .circle.size-xlarge {
+  width: 26px;
+  height: 26px;
+}
+
+/* Note text */
+.scale-note {
+  font-size: 0.85em;
+  color: #a0a0a0;
+  margin-top: 10px;
+  font-style: italic;
+  border-left: 2px solid #4CAF50;
+  padding-left: 10px;
+}
+
+@media (max-width: 900px) {
+  .info-container {
+    flex-direction: column;
+  }
+
+  .legend {
+    width: 100%;
+  }
+}
+  </style>
+
+  
+</head>
+<body>
+  <!-- Mapbox CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <div class="container">
+    <header>
+      <h1>The Trees of the Concrete Jungle</h1>
+      <h2>An interactive guide to the trees of the City of Melbourne</h2>
+    </header>
+
+    <div class="map-wrapper">
+      <div id="map"></div>
+      <div id="geocoder-container"></div>
+
+      <div class="info-container">
+        <div class="description">
+          <h3>About This Map</h3>
+          <p>
+            This interactive map displays the trees of Melbourne's CBD, visualised
+            by their maturity levels and their size (taken from diameter at breast
+            height). The data for individual tree location and information comes
+            from the City of Melbourne's open data portal. For the parkland areas,
+            the data was sourced from Vic.Data meshblock categories. The tree
+            guard data is from the street furniture dataset by data.vic
+          </p>
+        </div>
+
+        <div class="how-to-use">
+          <h3>How To Use This Map</h3>
+          <ul>
+            <li>Use the search bar to find trees in specific locations</li>
+            <li>Click on individual trees for detailed information</li>
+            <li>Use the legend filters to show/hide different tree types</li>
+            <li>Zoom in/out to explore different areas</li>
+          </ul>
+        </div>
+
+        <div class="legend">
+          <h3>Legend & Filters</h3>
+          <div id="legend-items"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapbox JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script src="script.js"></script>
+
+  <script>
+    // Initialize map with access token
+mapboxgl.accessToken = "pk.eyJ1IjoiaGVuYmVhemxld29vZCIsImEiOiJjbTgzdmw5cTUxdjR1MnFwdG5tNTVoY2JlIn0.hpvWE0lgc6UJWtVtjhKmPQ";
+
+// Define key features
+var layers = ["Over-mature", "Mature", "Semi-Mature", "Juvenile", ""];
+var colors = ["#926438", "#a58962", "#a3ab82", "#3f4732", "#c0c3a8"];
+const bounds = [
+  [144.838858, -37.870314], // SW
+  [145.094719, -37.766712], // NE
+];
+
+var map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/henbeazlewood/cmb8yj8q600oa01sw1h3j1txb",
+  minZoom: 15,
+  maxZoom: 22,
+  maxBounds: bounds,
+});
+
+// Define function for interactive legend
+function createInteractiveLegend() {
+  const legendContainer = document.getElementById("legend-items");
+  legendContainer.innerHTML = "";
+
+  // Parkland Section (at top)
+  const parklandTitle = document.createElement("h4");
+  parklandTitle.textContent = "Parkland Areas";
+  legendContainer.appendChild(parklandTitle);
+
+  const parklandItem = document.createElement("div");
+  parklandItem.className = "legend-filter-item";
+  parklandItem.innerHTML = `
+    <label>
+      <input type="checkbox" class="parkland-toggle">
+      <span class="legend-key" style="background-color:#4CAF50"></span>
+      Parkland
+    </label>
+  `;
+  legendContainer.appendChild(parklandItem);
+
+  // Separator
+  const separator = document.createElement("hr");
+  separator.style.border = "0.5px solid #333";
+  separator.style.margin = "15px 0";
+  legendContainer.appendChild(separator);
+
+  // Tree Age Categories Section
+  const treeTitle = document.createElement("h4");
+  treeTitle.textContent = "Tree Age Categories";
+  legendContainer.appendChild(treeTitle);
+
+  // Add tree age checkboxes
+  layers.forEach((layer, index) => {
+    const item = document.createElement("div");
+    item.className = "legend-filter-item";
+    const displayLabel = layer === "" ? "Unidentified" : layer;
+
+    item.innerHTML = `
+      <label>
+        <input type="checkbox" class="tree-filter" 
+               value="${layer}" 
+               checked
+               data-original-value="${layer === null ? "null" : layer}">
+        <span class="legend-key" style="background-color:${colors[index]}"></span>
+        ${displayLabel}
+      </label>
+    `;
+    legendContainer.appendChild(item);
+  });
+
+  // Add DBH Scale Section
+  const dbhScaleSection = document.createElement("div");
+  dbhScaleSection.className = "dbh-scale";
+  dbhScaleSection.innerHTML = `
+    <h4>Tree Size (DBH)</h4>
+    <div class="scale-item">
+      <div class="scale-circle">
+        <div class="circle size-small"></div>
+      </div>
+      <div class="scale-label">
+        Small (< 15 cm)
+      </div>
+    </div>
+    <div class="scale-item">
+      <div class="scale-circle">
+        <div class="circle size-medium"></div>
+      </div>
+      <div class="scale-label">
+        Medium (15-30 cm)
+      </div>
+    </div>
+    <div class="scale-item">
+      <div class="scale-circle">
+        <div class="circle size-large"></div>
+      </div>
+      <div class="scale-label">
+        Large (30-50 cm)
+      </div>
+    </div>
+    <div class="scale-item">
+      <div class="scale-circle">
+        <div class="circle size-xlarge"></div>
+      </div>
+      <div class="scale-label">
+        Very Large (> 50 cm)
+      </div>
+    </div>
+    <div class="scale-note">
+      ⌀ Circle size represents Diameter at Breast Height (DBH) - larger circles indicate thicker trees
+    </div>
+  `;
+  legendContainer.appendChild(dbhScaleSection);
+
+  // Tree filter event listeners
+  document.querySelectorAll(".tree-filter").forEach((checkbox) => {
+    checkbox.addEventListener("change", function () {
+      const selectedLayers = [];
+      document.querySelectorAll(".tree-filter:checked").forEach((cb) => {
+        const originalValue = cb.getAttribute("data-original-value");
+        selectedLayers.push(originalValue === "null" ? null : originalValue);
+      });
+
+      if (selectedLayers.length === 0) {
+        map.setFilter("Trees", ["==", "id", -1]);
+      } else {
+        const conditions = selectedLayers.map((layer) => {
+          if (layer === null) return ["==", ["get", "age_description"], null];
+          else if (layer === "") return ["==", ["get", "age_description"], ""];
+          else return ["==", ["get", "age_description"], layer];
+        });
+        const filter =
+          conditions.length > 1 ? ["any", ...conditions] : conditions[0];
+        map.setFilter("Trees", filter);
+      }
+    });
+  });
+
+  // Parkland Toggle event listener
+  document
+    .querySelector(".parkland-toggle")
+    .addEventListener("change", function (e) {
+      const isVisible = e.target.checked;
+      map.setLayoutProperty(
+        "MB-parkland",
+        "visibility",
+        isVisible ? "visible" : "none"
+      );
+    });
+}
+
+// Wait for map to load before adding layers
+map.on("load", function () {
+  // Add navigation control
+  map.addControl(new mapboxgl.NavigationControl());
+
+  // Add search bar (geocoder) control
+  const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    marker: true,
+    placeholder: "Find your tree!",
+    proximity: {
+      longitude: 144.9631, // Melbourne center
+      latitude: -37.8136,
+    },
+  });
+
+  document.getElementById("geocoder-container").appendChild(geocoder.onAdd(map));
+
+  // Add vector source
+  map.addSource("trees-source", {
+    type: "vector",
+    url: "mapbox://henbeazlewood.b447q7f2",
+  });
+
+  // Add the tree layer
+  map.addLayer({
+    id: "Trees",
+    type: "circle",
+    source: "trees-source",
+    "source-layer": "TresswGuard-07kbky",
+    minzoom: 11,
+    paint: {
+      "circle-color": [
+        "match",
+        ["get", "age_description"],
+        "Over-mature",
+        colors[0],
+        "Mature",
+        colors[1],
+        "Semi-Mature",
+        colors[2],
+        "Juvenile",
+        colors[3],
+        colors[4],
+      ],
+      "circle-opacity": 1,
+      "circle-stroke-width": 0.5,
+      "circle-stroke-color": "#000000",
+      "circle-radius": {
+        property: "diameter_breast_height",
+        type: "interval",
+        stops: [
+          [0, 2],
+          [5, 3],
+          [15, 4],
+          [30, 5],
+          [50, 6],
+          [75, 7],
+        ],
+      },
+    },
+  });
+
+  // Add Meshblock Layer
+  map.addLayer({
+    id: "MB-parkland",
+    type: "fill",
+    source: { type: "vector", url: "mapbox://henbeazlewood.405j9ylx" },
+    "source-layer": "Prac06_2025_choropleth_MB-4dy59h",
+    minzoom: 11,
+    filter: ["==", ["get", "MB_CAT21"], "Parkland"],
+    paint: {
+      "fill-color": "#4CAF50",
+      "fill-opacity": 0.5,
+      "fill-outline-color": "#333",
+    },
+  });
+  map.setLayoutProperty("MB-parkland", "visibility", "none");
+
+  // Create the interactive legend
+  createInteractiveLegend();
+
+  // Add click interaction for trees
+  map.on("click", "Trees", (e) => {
+    const properties = e.features[0].properties;
+
+    new mapboxgl.Popup()
+      .setLngLat(e.lngLat)
+      .setHTML(`
+        <div class="tree-popup">
+          <h3>Tree Information</h3>
+          <div class="popup-grid">
+            <div class="popup-row">
+              <span class="popup-label">Common Name:</span>
+              <span class="popup-value">${properties.common_name || "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">Scientific Name:</span>
+              <span class="popup-value">${properties.scientific_name || "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">Age Category:</span>
+              <span class="popup-value">${properties.age_description || "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">DBH:</span>
+              <span class="popup-value">${properties.diameter_breast_height ? properties.diameter_breast_height + " cm" : "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">Useful Life Expectancy:</span>
+              <span class="popup-value">${properties.useful_life_expectency_value ? properties.useful_life_expectency_value + " years" : "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">Date Planted:</span>
+              <span class="popup-value">${properties.date_planted || properties.year_planted || "Unknown"}</span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-label">Tree Guard?:</span>
+              <span class="popup-value">${properties.Join_Count === 1 ? "Yes" : "No"}</span>
+            </div>
+          </div>
+        </div>
+      `)
+      .addTo(map);
+  });
+
+  // Change cursor on hover
+  map.on("mouseenter", "Trees", () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+
+  map.on("mouseleave", "Trees", () => {
+    map.getCanvas().style.cursor = "";
+  });
+});
+  </script>
+</body>
+</html>
